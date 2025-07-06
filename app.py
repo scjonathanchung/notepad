@@ -51,5 +51,5 @@ def delete(note_id):
     return redirect('/')
 
 if __name__ == '__main__':
-    # 监听所有IP，端口改为6000，debug模式开启
+    # 监听所有IP，端口改为5000，debug模式开启
     app.run(host='0.0.0.0', debug=True)
