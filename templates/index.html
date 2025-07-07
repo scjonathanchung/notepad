@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简易记事本</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            font-size: 1.5em;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 1em;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        .note-item {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .note-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+        .note-footer {
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            font-size: 0.85em;
+            color: #555;
+            flex-wrap: wrap;
+        }
+        .delete, .edit {
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .edit {
+            color: blue;
+        }
+        .delete {
+            color: red;
+        }
+        .delete:hover, .edit:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+                max-width: 100%;
+            }
+            textarea {
+                height: 120px;
+                font-size: 1em;
+            }
+            button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .note-item {
+                font-size: 0.95em;
+            }
+            .note-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .modal textarea {
+            width: 100%;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>简易记事本</h1>
+    <form method="post" action="/add">
+        <textarea name="note" placeholder="写点什么..."></textarea><br />
+        <button type="submit">添加笔记</button>
+    </form>
+    <ul>
+        {% for note in notes %}
+        <li class="note-item">
+            <pre class="note-text">{{ note[1] }}</pre>
+            <div class="note-footer">
+                <div class="timestamp">创建于：{{ note[2] }}</div>
+                <a class="edit" href="#" onclick="openEditModal({{ note[0] }}, `{{ note[1]|escape|replace('\\n', '\\\\n') }}`)">编辑</a>
+                <a class="delete" href="/delete/{{ note[0] }}" onclick="return confirm('确定要删除这条笔记吗？')">删除</a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <form method="post" action="/edit">
+                <input type="hidden" id="editId" name="id">
+                <textarea id="editContent" name="content"></textarea>
+                <br>
+                <button type="submit">保存修改</button>
+                <button type="button" onclick="closeEditModal()">取消</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, content) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editContent').value = content.replace(/\\\\n/g, "\\n");
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+    </script>
+</body>
+</html>
